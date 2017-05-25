@@ -27,4 +27,10 @@ typedef struct _pedalbox_msg {
 
 } Pedalbox_msg_t;
 
+typedef struct {
+	uint16_t				count;
+	uint16_t				period_ms;
+	Pedalbox_msg_t			msg;
+} GeneratePedalboxMessages_t;
+
 #endif /* PEDALBOX_H_ */

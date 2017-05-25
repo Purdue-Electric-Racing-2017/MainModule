@@ -68,17 +68,17 @@ void taskPedalBoxMsgHandler() {
 
 			/////////////PROCESS DATA///////////////
 			Pedalbox_status_t  	pedalbox_status = PEDALBOX_STATUS_NO_ERROR;  //local flag to be set if there is an error
-			double				throttle1_cal = (4095 * (double) (pedalboxmsg.throttle1_raw - car.throttle1_min)) / (double) (car.throttle1_max - car.throttle1_min);  //value 0-1, throttle 1 calibrated between min and max
-			double				throttle2_cal = (4095 * (double) (pedalboxmsg.throttle2_raw - car.throttle2_min)) / (double) (car.throttle2_max - car.throttle2_min);;  //value 0-1, throttle 2 calibrated between min and max
-			double				brake1_cal	  = (4095 * (double) (pedalboxmsg.brake1_raw - car.brake1_min)) / (double) (car.brake1_max - car.brake1_min);  //value 0-1, brake 1 calibrated between min and max
-			double				brake2_cal	  = (4095 * (double) (pedalboxmsg.brake2_raw - car.brake2_min)) / (double) (car.brake2_max - car.brake2_min);  //value 0-1, brake 2 calibrated between min and max
-			double				throttle_avg  = (double) (throttle1_cal + throttle2_cal) / (double) 2.0;
-			double				brake_avg     = (double) (brake1_cal + brake2_cal) / (double) 2.0;
+			long double				throttle1_cal = ((double) (pedalboxmsg.throttle1_raw - car.throttle1_min)) / (double) (car.throttle1_max - car.throttle1_min);  //value 0-1, throttle 1 calibrated between min and max
+			long double				throttle2_cal = ((double) (pedalboxmsg.throttle2_raw - car.throttle2_min)) / (double) (car.throttle2_max - car.throttle2_min);;  //value 0-1, throttle 2 calibrated between min and max
+			long double				brake1_cal	  = ((double) (pedalboxmsg.brake1_raw - car.brake1_min)) / (double) (car.brake1_max - car.brake1_min);  //value 0-1, brake 1 calibrated between min and max
+			long double				brake2_cal	  = ((double) (pedalboxmsg.brake2_raw - car.brake2_min)) / (double) (car.brake2_max - car.brake2_min);  //value 0-1, brake 2 calibrated between min and max
+			long double				throttle_avg  = (double) (throttle1_cal + throttle2_cal) / (double) 2.0;
+			long double				brake_avg     = (double) (brake1_cal + brake2_cal) / (double) 2.0;
 
 
 
 			// EV 2.4.6: Encoder out of range
-			if (pedalboxmsg.throttle1_raw >	car.throttle1_max ||					//legacy: pedalboxmsg.EOR == PEDALBOX_STATUS_ERROR
+			if ((pedalboxmsg.throttle1_raw - car.throttle1_min) > car.throttle1_max ||
 				pedalboxmsg.throttle2_raw >	car.throttle2_max)
 			{
 				pedalbox_status = PEDALBOX_STATUS_ERROR;
@@ -146,3 +146,14 @@ void taskPedalBoxMsgHandler() {
 	//if this task breaks from the loop kill it
 	vTaskDelete(NULL);
 }
+
+void taskGeneratePedalboxMessages(void * asdf) {
+	while (1) {
+		//xQueueSendToBack();
+		//car.q_pedalboxmsg;
+	}
+
+	//if this task breaks from the loop kill it
+	vTaskDelete(NULL);
+}
+
