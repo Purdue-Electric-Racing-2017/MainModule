@@ -89,7 +89,7 @@ void CANFilterConfig()
 	  FilterConf.FilterIdHigh = 	0b0000000001000000; // 2
 	  FilterConf.FilterIdLow = 		ID_PEDALBOXCALIBRATE << 5; // 0
 	  FilterConf.FilterMaskIdHigh = ID_PEDALBOX2 << 5; //3
-	  FilterConf.FilterMaskIdLow = 	0x113 << 5;	//1
+	  FilterConf.FilterMaskIdLow = 	ID_DASHBOARD << 5;	//1
 	  FilterConf.FilterFIFOAssignment = CAN_FilterFIFO0;
 	  FilterConf.FilterNumber = 0;
 	  FilterConf.FilterMode = CAN_FILTERMODE_IDLIST;
@@ -106,6 +106,7 @@ void CANFilterConfig()
 	  FilterConf.FilterScale = CAN_FILTERSCALE_16BIT;
 	  FilterConf.FilterActivation = ENABLE;
 	  HAL_CAN_ConfigFilter(car.phcan, &FilterConf);
+
 }
 
 /***************************************************************************
@@ -163,9 +164,10 @@ void taskRXCAN()
 		if (xSemaphoreTake(car.m_CAN, 10) == pdTRUE )
 		{
 			HAL_CAN_Receive_IT(car.phcan, 0);
+			HAL_CAN_Receive_IT(car.phcan, 1);
 			xSemaphoreGive(car.m_CAN);  //release CAN mutex
 		}
-		vTaskDelay(10);
+		vTaskSuspend(NULL);
 	}
 }
 
@@ -203,20 +205,34 @@ void taskRXCANProcess()
 			//A CAN message has been recieved
 
 			//check what kind of message we received
-			if (rx.StdId == ID_PEDALBOX2) //if pedalbox1 message
+			switch (rx.StdId)
 			{
-				processPedalboxFrame(&rx); //todo check if copies properly
-			} else if  (rx.StdId == ID_PEDALBOXCALIBRATE ){
-				processCalibrate(&rx);
-			} else if (rx.StdId == ID_BAMOCAR_STATION_RX) { //if bamocar message
-				//forward frame to mc frame queue
-				xQueueSend(car.q_mc_frame, &rx, 100);
-			} else if (	rx.StdId == ID_WHEEL_FR ||
-						rx.StdId == ID_WHEEL_FL ||
-						rx.StdId == ID_WHEEL_RR ||
-						rx.StdId == ID_WHEEL_RL) //todo add all the other wheel module IDs
-			{
-				processWheelModuleFrame(&rx);
+				case ID_PEDALBOX2:  //if pedalbox1 message
+				{
+					processPedalboxFrame(&rx); //todo check if copies properly
+					break;
+				}
+				case ID_PEDALBOXCALIBRATE: {
+					processCalibrate(&rx);
+					break;
+				}
+				case ID_BAMOCAR_STATION_RX: { //if bamocar message
+					//forward frame to mc frame queue
+					xQueueSend(car.q_mc_frame, &rx, 100);
+				}
+				case  	ID_WHEEL_FR:
+				case	ID_WHEEL_FL:
+				case	ID_WHEEL_RR:
+				case	ID_WHEEL_RL: //todo add all the other wheel module IDs
+				{
+					processWheelModuleFrame(&rx);
+					break;
+				}
+				case	ID_DASHBOARD:
+				{
+					ISR_StartButtonPressed();
+					break;
+				}
 			}
 		}
 	}
@@ -289,13 +305,13 @@ void processPedalboxFrame(CanRxMsgTypeDef* rx)
 		pedalboxmsg.throttle1_raw = 0;
 		pedalboxmsg.throttle1_raw |= throttle1_7_0 << 0;
 		pedalboxmsg.throttle1_raw |= throttle1_11_8 << 8;
-		pedalboxmsg.throttle2_raw = 100;
+		pedalboxmsg.throttle2_raw = 0;
 		pedalboxmsg.throttle2_raw |= throttle2_7_0 << 0;
 		pedalboxmsg.throttle2_raw |= throttle2_11_8 << 8;
 		pedalboxmsg.brake1_raw = 0;
 		pedalboxmsg.brake1_raw |= brake1_7_0 << 0;
 		pedalboxmsg.brake1_raw |= brake1_11_8 << 8;
-		pedalboxmsg.brake2_raw = 100;
+		pedalboxmsg.brake2_raw = 0;
 		pedalboxmsg.brake2_raw |= brake2_7_0 << 0;
 		pedalboxmsg.brake2_raw |= brake2_11_8 << 8;
 

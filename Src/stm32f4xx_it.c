@@ -167,6 +167,7 @@ void SysTick_Handler(void)
 /**
 * @brief This function handles EXTI line0 interrupt.
 */
+extern uint8_t variable;
 void EXTI0_IRQHandler(void)
 {
   /* USER CODE BEGIN EXTI0_IRQn 0 */
@@ -177,7 +178,14 @@ void EXTI0_IRQHandler(void)
   //CanTxMsgTypeDef tx;
   //xQueueSendFromISR(rtos_can1.queue_tx, &tx, NULL);
   HAL_GPIO_TogglePin(LD6_GPIO_Port, LD6_Pin);
-  HAL_GPIO_TogglePin(RFE_CTRL_GPIO_Port, RFE_CTRL_Pin);
+//  HAL_GPIO_TogglePin(RFE_CTRL_GPIO_Port, RFE_CTRL_Pin);
+  HAL_GPIO_TogglePin(Pump_Relay_CTRL_GPIO_Port, Pump_Relay_CTRL_Pin);
+
+//  HAL_FLASH_Unlock();
+//  __HAL_FLASH_CLEAR_FLAG(FLASH_FLAG_EOP | FLASH_FLAG_OPERR | FLASH_FLAG_WRPERR | FLASH_FLAG_PGAERR | FLASH_FLAG_PGSERR );
+//  FLASH_Erase_Sector(FLASH_SECTOR_11, VOLTAGE_RANGE_3);
+//  HAL_FLASH_Program(TYPEPROGRAM_BYTE, &variable, 123);
+//  HAL_FLASH_Lock();
 
 
   /* USER CODE END EXTI0_IRQn 1 */
@@ -207,7 +215,9 @@ void CAN1_RX0_IRQHandler(void)
   /* USER CODE END CAN1_RX0_IRQn 0 */
   HAL_CAN_IRQHandler(&hcan1);
   /* USER CODE BEGIN CAN1_RX0_IRQn 1 */
-	xQueueSendFromISR(car.q_rxcan, (car.phcan->pRxMsg), NULL);
+	xQueueSendFromISR(car.q_rxcan, (car.phcan->pRxMsg), NULL);  //send to the rx can process task
+	HAL_CAN_Receive_IT(&hcan1, 0);  //get ready to receive again
+
   /* USER CODE END CAN1_RX0_IRQn 1 */
 }
 
@@ -222,6 +232,7 @@ void CAN1_RX1_IRQHandler(void)
   HAL_CAN_IRQHandler(&hcan1);
   /* USER CODE BEGIN CAN1_RX1_IRQn 1 */
 	xQueueSendFromISR(car.q_rxcan, (car.phcan->pRxMsg), NULL);
+	HAL_CAN_Receive_IT(&hcan1, 1);  //get ready to receive again
 
   /* USER CODE END CAN1_RX1_IRQn 1 */
 }
@@ -247,7 +258,7 @@ void EXTI15_10_IRQHandler(void)
 {
   /* USER CODE BEGIN EXTI15_10_IRQn 0 */
 	if (EXTI->PR & EXTI_PR_PR15) {
-		ISR_StartButtonPressed();
+
 	}
   /* USER CODE END EXTI15_10_IRQn 0 */
   HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_15);

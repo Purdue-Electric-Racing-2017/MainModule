@@ -81,30 +81,11 @@ void StartDefaultTask(void const * argument);
 /* USER CODE END PFP */
 
 /* USER CODE BEGIN 0 */
-
+__attribute__((__section__(".user_data"))) const uint8_t* variable;
 //RTOS_CAN_t rtos_can1;
 
-void vTaskBlink(void* can)
-{
-	while (1)
-	{
-		HAL_GPIO_TogglePin(FRG_RUN_CTRL_GPIO_Port, FRG_RUN_CTRL_Pin);
-		HAL_GPIO_TogglePin(LD4_GPIO_Port, LD4_Pin);
-		HAL_GPIO_TogglePin(LD5_GPIO_Port, LD5_Pin);
 
-		CanTxMsgTypeDef tx;
-		tx.IDE = CAN_ID_STD;
-		tx.RTR = CAN_RTR_DATA;
-		tx.StdId = 0x300;
-		tx.DLC = 1;
-		tx.Data[0] = 0xa1;
-		car.phcan->pTxMsg = &tx;
-		HAL_CAN_Transmit_IT(car.phcan);						//transmit staged message
 
-		//xQueueSendToBack(rtos_can1.queue_tx, &tx, 100);
-		vTaskDelay(500);
-	}
-}
 
 /* USER CODE END 0 */
 
@@ -128,13 +109,15 @@ int main(void)
   MX_CAN1_Init();
 
   /* USER CODE BEGIN 2 */
-  //initRTOS_CAN(&rtos_can1, &hcan1);
+  //START HERE///////////////////////////////////////////////////////////////
   carInit();
   CANFilterConfig();
   initRTOSObjects();
 
+
+
   //TaskHandle_t taskhandle;
-  //xTaskCreate(vTaskBlink, "blink", 128, NULL, 5, &taskhandle);
+  //xTaskCreate(taskBlink, "blink", 128, NULL, 5, &taskhandle);
   /* USER CODE END 2 */
 
   /* USER CODE BEGIN RTOS_MUTEX */

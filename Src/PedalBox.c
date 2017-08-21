@@ -68,12 +68,12 @@ void taskPedalBoxMsgHandler() {
 
 			/////////////PROCESS DATA///////////////
 			Pedalbox_status_t  	pedalbox_status = PEDALBOX_STATUS_NO_ERROR;  //local flag to be set if there is an error
-			long double				throttle1_cal = ((double) (pedalboxmsg.throttle1_raw - car.throttle1_min)) / (double) (car.throttle1_max - car.throttle1_min);  //value 0-1, throttle 1 calibrated between min and max
-			long double				throttle2_cal = ((double) (pedalboxmsg.throttle2_raw - car.throttle2_min)) / (double) (car.throttle2_max - car.throttle2_min);;  //value 0-1, throttle 2 calibrated between min and max
-			long double				brake1_cal	  = ((double) (pedalboxmsg.brake1_raw - car.brake1_min)) / (double) (car.brake1_max - car.brake1_min);  //value 0-1, brake 1 calibrated between min and max
-			long double				brake2_cal	  = ((double) (pedalboxmsg.brake2_raw - car.brake2_min)) / (double) (car.brake2_max - car.brake2_min);  //value 0-1, brake 2 calibrated between min and max
-			long double				throttle_avg  = (double) (throttle1_cal + throttle2_cal) / (double) 2.0;
-			long double				brake_avg     = (double) (brake1_cal + brake2_cal) / (double) 2.0;
+			float			throttle1_cal = ((float)(pedalboxmsg.throttle1_raw - car.throttle1_min)) / (car.throttle1_max - car.throttle1_min);  //value 0-1, throttle 1 calibrated between min and max
+			float			throttle2_cal = ((float)(pedalboxmsg.throttle2_raw - car.throttle2_min)) / (car.throttle2_max - car.throttle2_min);;  //value 0-1, throttle 2 calibrated between min and max
+			float 			brake1_cal	  = ((float)(pedalboxmsg.brake1_raw - car.brake1_min)) / (car.brake1_max - car.brake1_min);  //value 0-1, brake 1 calibrated between min and max
+			float 			brake2_cal	  = ((float)(pedalboxmsg.brake2_raw - car.brake2_min)) / (car.brake2_max - car.brake2_min);  //value 0-1, brake 2 calibrated between min and max
+			float 			throttle_avg  = (throttle1_cal + throttle2_cal) / 2.0;
+			float			brake_avg     = (brake1_cal + brake2_cal) / 2.0;
 
 
 
@@ -102,7 +102,7 @@ void taskPedalBoxMsgHandler() {
 					car.apps_imp_first_time_ms = current_time_ms;
 				}
 			}
-			//update last state variable so we know this state, next time we get an error
+			//update last state variable so we know this current state, for next time we get an error
 			car.apps_imp_last_state = pedalboxmsg.APPS_Implausible;
 
 
@@ -132,14 +132,16 @@ void taskPedalBoxMsgHandler() {
 			}
 
 			//set the car's throttle to the throttle just received
-			if (pedalbox_status == PEDALBOX_STATUS_NO_ERROR)
+//			if (pedalbox_status == PEDALBOX_STATUS_NO_ERROR)
 			{
 				//no errors, set throttle to value received from pedalbox
 				car.throttle = throttle_avg * MAX_THROTTLE_LEVEL;
-			} else {
-				//if there were errors, set throttle = 0
-				car.throttle = 0;
 			}
+//			else
+//			{
+//				//if there were errors, set throttle = 0
+//				car.throttle = 0;
+//			}
 		}
 	}
 
@@ -156,4 +158,11 @@ void taskGeneratePedalboxMessages(void * asdf) {
 	//if this task breaks from the loop kill it
 	vTaskDelete(NULL);
 }
+
+//int storeToFlash() {
+//	HAL_FLASH_Unlock();
+//	__HAL_FLASH_CLEAR_FLAG(FLASH_FLAG_EOP | FLASH_FLAG_OPERR | FLASH_FLAG_WRPERR | FLASH_FLAG_PGAERR | FLASH_FLAG_PGSERR );
+//)
+//};
+
 

@@ -47,6 +47,17 @@ void carInit() {
 	car.throttle = 0;
 	car.brake = 0;
 	car.phcan = &hcan1;
+	car.calibrate_flag = CALIBRATE_NONE;
+	car.throttle1_min = 0x0;
+	car.throttle1_max = 0xfff;
+	car.throttle2_min = 0x0;
+	car.throttle2_max = 0xfff;
+	car.throttle1_min = 0x0;
+	car.throttle1_max = 0xfff;
+	car.throttle2_min = 0x0;
+	car.throttle2_max = 0xfff;
+
+
 }
 
 void ISR_StartButtonPressed() {

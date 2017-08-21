@@ -20,10 +20,10 @@ typedef enum {
 typedef struct _pedalbox_msg {
 	Pedalbox_status_t 		EOR; 				// EV 2.4.6: Encoder out of range
 	Pedalbox_status_t 		APPS_Implausible; 	// EV 2.3.5
-	uint16_t 				throttle1_raw;		// raw throttle data from pedalbox
-	uint16_t				throttle2_raw;
-	uint16_t 				brake1_raw;
-	uint16_t				brake2_raw;
+	uint32_t 				throttle1_raw;		// raw throttle data from pedalbox
+	uint32_t 				throttle2_raw;
+	uint32_t  				brake1_raw;
+	uint32_t 				brake2_raw;
 
 } Pedalbox_msg_t;
 

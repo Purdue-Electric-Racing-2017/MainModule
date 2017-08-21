@@ -24,6 +24,8 @@ int mainModuleWatchdogTask();
 int taskHeartbeat();
 void taskSoundBuzzer(int* time);
 void initRTOSObjects();
+void taskBlink(void* can);
+
 
 
 //variable delcarations

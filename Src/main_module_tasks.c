@@ -31,8 +31,6 @@ void taskLaunchControl() {
 }
 
 
-
-
 //TODO Potential MC ping function
 //TODO BMS functions
 
@@ -129,7 +127,7 @@ void initRTOSObjects() {
 	car.q_pedalboxmsg = 	xQueueCreate(QUEUE_SIZE_PEDALBOXMSG, sizeof(Pedalbox_msg_t));
 	car.q_mc_frame = 		xQueueCreate(QUEUE_SIZE_MCFRAME, sizeof(CanRxMsgTypeDef));
 
-	car.m_CAN =				xSemaphoreCreateMutex();
+	car.m_CAN =				xSemaphoreCreateMutex(); //mutex to protect CAN peripheral
 
 	/* Create Tasks */
 
@@ -138,9 +136,32 @@ void initRTOSObjects() {
 	xTaskCreate(taskCarMainRoutine, "CarMainRoutine", 512, NULL, 1, NULL);
 	xTaskCreate(taskTXCAN, "TX CAN", 512, NULL, 1, NULL);
 	xTaskCreate(taskRXCANProcess, "RX CAN Process", 1024, NULL, 1, NULL);
-	xTaskCreate(taskRXCAN, "RX CAN", 512, NULL, 1, NULL);
+	xTaskCreate(taskRXCAN, "RX CAN", 128, NULL, 1, NULL);
+	xTaskCreate(taskBlink, "blink", 128, NULL, 1, NULL);
  }
+extern uint8_t variable;
+void taskBlink(void* can)
+{
+	vTaskDelay(5000); //TESTING1
+	while (1)
+	{
+		//HAL_GPIO_TogglePin(FRG_RUN_CTRL_GPIO_Port, FRG_RUN_CTRL_Pin);
+		HAL_GPIO_TogglePin(LD4_GPIO_Port, LD4_Pin);
+		//HAL_GPIO_TogglePin(LD5_GPIO_Port, LD5_Pin);
 
+		CanTxMsgTypeDef tx;
+		tx.IDE = CAN_ID_STD;
+		tx.RTR = CAN_RTR_DATA;
+		tx.StdId = 0x300;
+		tx.DLC = 1;
+		tx.Data[0] = variable;
+		car.phcan->pTxMsg = &tx;
+		HAL_CAN_Transmit_IT(car.phcan);						//transmit staged message
+
+		//xQueueSendToBack(rtos_can1.queue_tx, &tx, 100);
+		vTaskDelay(500);
+	}
+}
 
 
 void taskSoundBuzzer(int* time_ms) {
@@ -205,7 +226,7 @@ void taskCarMainRoutine() {
 			uint16_t torque_to_send = 0;
 
 			//check if the age of the pedalbox message is greater than the timeout
-			if (current_time_ms - car.pb_msg_rx_time > PEDALBOX_TIMEOUT) {
+			if (current_time_ms - car.pb_msg_rx_time > PEDALBOX_TIMEOUT && PEDALBOX_TIMEOUT != 0) {
 				torque_to_send = 0;
 				//todo send a CAN message to dash?
 			} else {

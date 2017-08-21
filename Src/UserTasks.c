@@ -8,6 +8,8 @@ extern QueueHandle_t q_txcan;
 
 void taskBlink_LED(int *ledID)
 {
+	vTaskDelay(5000); //TESTING1
+
 	for(;;)
 	{
 		GPIO_TypeDef* portToToggle;
