@@ -142,7 +142,7 @@ void initRTOSObjects() {
 extern uint8_t variable;
 void taskBlink(void* can)
 {
-	vTaskDelay(5000); //TESTING1
+	//vTaskDelay(5000); //TESTING1
 	while (1)
 	{
 		//HAL_GPIO_TogglePin(FRG_RUN_CTRL_GPIO_Port, FRG_RUN_CTRL_Pin);
