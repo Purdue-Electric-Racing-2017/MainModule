@@ -100,8 +100,6 @@
 #define Radiator_Fan_Relay_CTRL_GPIO_Port GPIOE
 #define SDC_CTRL_Pin GPIO_PIN_14
 #define SDC_CTRL_GPIO_Port GPIOE
-#define Start_BTN_Pin GPIO_PIN_15
-#define Start_BTN_GPIO_Port GPIOE
 #define Buzzer_CTRL_Pin GPIO_PIN_10
 #define Buzzer_CTRL_GPIO_Port GPIOB
 #define LD4_Pin GPIO_PIN_12

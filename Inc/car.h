@@ -8,10 +8,17 @@
 #ifndef CAR_H_
 #define CAR_H_
 
-//includes
+
+#include "PedalBox.h"
 #include "stm32f4xx_hal.h"
 #include "cmsis_os.h"
-#include "PedalBox.h"
+#include "car.h"
+#include "CANProcess.h"
+#include "BMS.h"
+#include "WheelModule.h"
+#include <math.h>
+
+
 
 //gpio aliases
 #define BUZZER_PORT			GPIOB	//todo
@@ -36,7 +43,9 @@
 #define PEDALBOX_TIMEOUT			500 / portTICK_RATE_MS
 #define MAX_BRAKE_LEVEL 			0xFFF
 #define MAX_THROTTLE_LEVEL			0x7FFF
-#define LC_THRESHOLD				10			// todo lc threshold BOGUS VALUE
+#define LC_THRESHOLD				10			// todo lc threshold DUMMY VALUE
+#define LAUNCH_CONTROL_INTERVAL_MS	10
+
 
 //rtos parameter defines
 #define QUEUE_SIZE_RXCAN			3
@@ -63,7 +72,8 @@ typedef enum {
 	CAR_STATE_INIT,
 	CAR_STATE_PREREADY2DRIVE,
 	CAR_STATE_READY2DRIVE,
-	CAR_STATE_ERROR
+	CAR_STATE_ERROR,
+	CAR_STATE_STOPPING
 } Car_state_t;
 
 typedef enum {
@@ -86,20 +96,23 @@ typedef struct {
 	Car_state_t 			state;
 	uint8_t					errorFlags;
 	//calibration values
-	uint16_t				throttle1_min;
-	uint16_t				throttle1_max;
-	uint16_t				throttle2_min;
-	uint16_t				throttle2_max;
-	uint16_t				brake1_min;
-	uint16_t				brake1_max;
-	uint16_t				brake2_min;
-	uint16_t				brake2_max;
-	uint16_t 				throttle;					//car's intended throttle position
-	uint16_t 				brake;						//car's intended brake position
+	int32_t				throttle1_min; //this is a higher value than max
+	int32_t				throttle1_max; //this is a lower value than min
+	int32_t				throttle2_min;
+	int32_t				throttle2_max;
+	int32_t				brake1_min;
+	int32_t				brake1_max;
+	int32_t				brake2_min;
+	int32_t				brake2_max;
+	int64_t 				throttle_acc;				//sum of car's intended throttle messages from pedalbox since last cmd sent to MC
+	int16_t					throttle_cnt;				//number of throttle messages in accumulator
+	int16_t 				brake;						//car's intended brake position
 	uint32_t				pb_msg_rx_time;				//indicates when a pedalbox message was last received
 	uint32_t				apps_imp_first_time_ms;		//indicates when the first imp error was received
-	Pedalbox_status_t		apps_imp_last_state;		//the last pedalbox message imp sate
-	Pedalbox_status_t		apps_bp_plaus;				//apps-brake plausibility status
+	Pedalbox_status_t		apps_state_imp;		//the last pedalbox message imp sate
+	Pedalbox_status_t		apps_state_bp_plaus;				//apps-brake plausibility status
+	Pedalbox_status_t		apps_state_eor;				//apps-brake plausibility status
+	Pedalbox_status_t		apps_state_timeout;				//apps-brake plausibility status
 	Pedalbox_mode_t			pb_mode;					//determines whether pb will be analog or CAN
 	Calibrate_flag_t		calibrate_flag;
 
@@ -118,12 +131,21 @@ typedef struct {
 
 } Car_t;
 
-extern Car_t car;
+extern volatile Car_t car;
 extern CAN_HandleTypeDef hcan1;
 
 //function prototypes
 void carSetBrakeLight(Brake_light_status_t status);
 void ISR_StartButtonPressed();
 void carInit();
+void taskPedalBoxMsgHandler();
+void taskCarMainRoutine();
+int SendTorqueTask();
+int mainModuleWatchdogTask();
+int taskHeartbeat();
+void taskSoundBuzzer(int* time);
+void initRTOSObjects();
+void taskBlink(void* can);
+void stopCar();
 
 #endif /* CAR_H_ */

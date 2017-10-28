@@ -12,18 +12,22 @@
 #include "cmsis_os.h"
 
 typedef enum {
-	PEDALBOX_STATUS_ERROR = 1,
+	PEDALBOX_STATUS_ERROR = 1, //generic error
+	PEDALBOX_STATUS_ERROR_EOR, // encoder out of range
+	PEDALBOX_STATUS_ERROR_APPSIMP,  //APPS Implausibility error, EV 2.3.5,
+	PEDALBOX_STATUS_ERROR_APPSIMP_PROV,  //APPS Implausibility error, provisional (before it has lasted .1 second)
+	PEDALBOX_STATUS_ERROR_BPIMP,	//brake pedal implaus //EV 2.5.1,
 	PEDALBOX_STATUS_NO_ERROR = 0
 } Pedalbox_status_t;
 
 // Structure to hold data passed through the queue to pedalBoxMsgHandler
 typedef struct _pedalbox_msg {
-	Pedalbox_status_t 		EOR; 				// EV 2.4.6: Encoder out of range
-	Pedalbox_status_t 		APPS_Implausible; 	// EV 2.3.5
-	uint32_t 				throttle1_raw;		// raw throttle data from pedalbox
-	uint32_t 				throttle2_raw;
-	uint32_t  				brake1_raw;
-	uint32_t 				brake2_raw;
+	//Pedalbox_status_t 		EOR; 				// EV 2.4.6: Encoder out of range
+	//Pedalbox_status_t 		APPS_Implausible; 	// EV 2.3.5
+	int 				throttle1_raw;		// raw throttle data from pedalbox
+	int 				throttle2_raw;
+	int  				brake1_raw;
+	int 				brake2_raw;
 
 } Pedalbox_msg_t;
 
