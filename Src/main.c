@@ -46,7 +46,6 @@
 #include "cmsis_os.h"
 
 /* USER CODE BEGIN Includes */
-#include "main_module_tasks.h"
 #include "car.h"
 #include "BMS.h"
 #include "WheelModule.h"
@@ -63,7 +62,7 @@ osThreadId defaultTaskHandle;
 /* Private variables ---------------------------------------------------------*/
 QueueHandle_t q_txcan;
 SemaphoreHandle_t m_CAN;
-Car_t car;
+volatile Car_t car;
 BMS_t BMS;
 WheelModule_t wheelModule;
 /* USER CODE END PV */
@@ -89,8 +88,7 @@ __attribute__((__section__(".user_data"))) const uint8_t* variable;
 
 /* USER CODE END 0 */
 
-int main(void)
-{
+int main(void){
 
   /* USER CODE BEGIN 1 */
 
@@ -113,7 +111,6 @@ int main(void)
   carInit();
   CANFilterConfig();
   initRTOSObjects();
-
 
 
   //TaskHandle_t taskhandle;
@@ -376,12 +373,6 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(BOOT1_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : Start_BTN_Pin */
-  GPIO_InitStruct.Pin = Start_BTN_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(Start_BTN_GPIO_Port, &GPIO_InitStruct);
-
   /*Configure GPIO pins : LD4_Pin LD3_Pin LD5_Pin LD6_Pin 
                            Audio_RST_Pin */
   GPIO_InitStruct.Pin = LD4_Pin|LD3_Pin|LD5_Pin|LD6_Pin 
@@ -436,9 +427,6 @@ static void MX_GPIO_Init(void)
   /* EXTI interrupt init*/
   HAL_NVIC_SetPriority(EXTI0_IRQn, 5, 0);
   HAL_NVIC_EnableIRQ(EXTI0_IRQn);
-
-  HAL_NVIC_SetPriority(EXTI15_10_IRQn, 5, 0);
-  HAL_NVIC_EnableIRQ(EXTI15_10_IRQn);
 
 }
 

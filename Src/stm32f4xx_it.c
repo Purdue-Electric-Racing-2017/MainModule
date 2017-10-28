@@ -167,7 +167,6 @@ void SysTick_Handler(void)
 /**
 * @brief This function handles EXTI line0 interrupt.
 */
-extern uint8_t variable;
 void EXTI0_IRQHandler(void)
 {
   /* USER CODE BEGIN EXTI0_IRQn 0 */
@@ -180,7 +179,7 @@ void EXTI0_IRQHandler(void)
   HAL_GPIO_TogglePin(LD6_GPIO_Port, LD6_Pin);
 //  HAL_GPIO_TogglePin(RFE_CTRL_GPIO_Port, RFE_CTRL_Pin);
   HAL_GPIO_TogglePin(Pump_Relay_CTRL_GPIO_Port, Pump_Relay_CTRL_Pin);
-
+  ISR_StartButtonPressed();
 //  HAL_FLASH_Unlock();
 //  __HAL_FLASH_CLEAR_FLAG(FLASH_FLAG_EOP | FLASH_FLAG_OPERR | FLASH_FLAG_WRPERR | FLASH_FLAG_PGAERR | FLASH_FLAG_PGSERR );
 //  FLASH_Erase_Sector(FLASH_SECTOR_11, VOLTAGE_RANGE_3);
@@ -249,22 +248,6 @@ void TIM1_UP_TIM10_IRQHandler(void)
   /* USER CODE BEGIN TIM1_UP_TIM10_IRQn 1 */
 
   /* USER CODE END TIM1_UP_TIM10_IRQn 1 */
-}
-
-/**
-* @brief This function handles EXTI line[15:10] interrupts.
-*/
-void EXTI15_10_IRQHandler(void)
-{
-  /* USER CODE BEGIN EXTI15_10_IRQn 0 */
-	if (EXTI->PR & EXTI_PR_PR15) {
-
-	}
-  /* USER CODE END EXTI15_10_IRQn 0 */
-  HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_15);
-  /* USER CODE BEGIN EXTI15_10_IRQn 1 */
-
-  /* USER CODE END EXTI15_10_IRQn 1 */
 }
 
 /* USER CODE BEGIN 1 */

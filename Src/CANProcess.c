@@ -17,7 +17,7 @@
 *
 ***************************************************************************/
 #include <CANProcess.h>
-#include "main_module_tasks.h"
+
 #include "car.h"
 #include "PedalBox.h"
 
@@ -85,6 +85,8 @@ void ISR_RXCAN()
 //}
 void CANFilterConfig()
 {
+
+
 	  CAN_FilterConfTypeDef FilterConf;
 	  FilterConf.FilterIdHigh = 	0b0000000001000000; // 2
 	  FilterConf.FilterIdLow = 		ID_PEDALBOXCALIBRATE << 5; // 0
@@ -107,7 +109,9 @@ void CANFilterConfig()
 	  FilterConf.FilterActivation = ENABLE;
 	  HAL_CAN_ConfigFilter(car.phcan, &FilterConf);
 
+
 }
+
 
 /***************************************************************************
 *
@@ -294,11 +298,11 @@ void processPedalboxFrame(CanRxMsgTypeDef* rx)
 		uint8_t brake2_11_8	=
 				(rx->Data[PEDALBOX1_BRAKE2_11_8_BYTE] & PEDALBOX1_BRAKE2_11_8_MASK) >> PEDALBOX1_BRAKE2_11_8_OFFSET;  //brake 2 Value (11:8) [3:0]
 
-		//mask then shift the error flags
-		pedalboxmsg.APPS_Implausible =
-				(rx->Data[PEDALBOX1_IMP_BYTE] & PEDALBOX1_IMP_MASK) >> PEDALBOX1_IMP_OFFSET;
-		pedalboxmsg.EOR =
-				(rx->Data[PEDALBOX1_EOR_BYTE] & PEDALBOX1_EOR_MASK) >> PEDALBOX1_EOR_OFFSET;
+		//mask then shift the error flags //we nolonger calculate erros on PedalBox board. 10-23-2017
+//		pedalboxmsg.APPS_Implausible =
+//				(rx->Data[PEDALBOX1_IMP_BYTE] & PEDALBOX1_IMP_MASK) >> PEDALBOX1_IMP_OFFSET;
+//		pedalboxmsg.EOR =
+//				(rx->Data[PEDALBOX1_EOR_BYTE] & PEDALBOX1_EOR_MASK) >> PEDALBOX1_EOR_OFFSET;
 
 
 		//build the data

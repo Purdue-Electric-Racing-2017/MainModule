@@ -139,10 +139,11 @@ void enableMotorController() {
 *		chapter 10 bamocar ndrive manual
 *
 ***************************************************************************/
-
-	HAL_GPIO_WritePin(RFE_PORT, RFE_PIN, GPIO_PIN_SET);
-	vTaskDelay(500 / portTICK_RATE_MS);  //wait 500ms, see BAMOCAR manual
 	HAL_GPIO_WritePin(FRG_RUN_PORT, FRG_RUN_PIN, GPIO_PIN_SET);
+
+	vTaskDelay(500 / portTICK_RATE_MS);  //wait 500ms, see BAMOCAR manual
+	HAL_GPIO_WritePin(RFE_PORT, RFE_PIN, GPIO_PIN_SET);
+
 
 
 }
